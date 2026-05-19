@@ -1,0 +1,7 @@
+backend/app/__pycache__/__init__.cpython-313.pyc
+backend/app/__pycache__/config.cpython-313.pyc
+backend/app/db/__pycache__/__init__.cpython-313.pyc
+backend/app/db/__pycache__/dynamo.cpython-313.pyc
+backend/tests/__pycache__/__init__.cpython-313.pyc
+backend/tests/__pycache__/conftest.cpython-313-pytest-8.3.0.pyc
+backend/tests/__pycache__/test_dynamo.cpython-313-pytest-8.3.0.pyc
