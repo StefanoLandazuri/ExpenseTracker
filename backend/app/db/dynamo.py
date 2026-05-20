@@ -64,3 +64,20 @@ def delete_expense(user_id: str, expense_id: str, date: str) -> bool:
         "SK": sk,
     })
     return True
+
+def put_user(user:dict) -> None:
+    table = get_table()
+    table.put_item(Item={
+        "PK": f"USER#{user['id']}",
+        "SK": "PROFILE",
+        "email": user["email"],
+        **user,
+    })
+def get_user_by_email(email: str) -> dict | None:
+    table = get_table()
+    response = table.query(
+        IndexName="email-index",
+        KeyConditionExpression=Key("email").eq(email)
+    )
+    items = response.get("Items", [])
+    return items[0] if items else None
