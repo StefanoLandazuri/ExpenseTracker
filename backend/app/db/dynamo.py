@@ -16,7 +16,7 @@ def get_client():
 
 
 def get_table():
-    return  get_client().Table(settings.dynamodb_table)
+    return  get_client().Table(settings.dynamodb_table) # type: ignore
 
 
 def put_expense(user_id: str, expense: dict) -> None:

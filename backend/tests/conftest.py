@@ -64,7 +64,7 @@ def dynamo_table():
         aws_access_key_id="local",
         aws_secret_access_key="local",
     )
-    table:Any = resource.Table(TABLE_NAME)
+    table:Any = resource.Table(TABLE_NAME) # type: ignore
 
     yield table
 
