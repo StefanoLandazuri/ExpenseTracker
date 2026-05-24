@@ -4,11 +4,18 @@ from app.errors import AppError
 from app.routes.auth import router as auth_router
 from app.routes.expenses import router as expenses_router
 from app.logging_config import setup_logging, logger
+from app.db.dynamo import ensure_table_exists
+from fastapi.middleware.cors import CORSMiddleware
 import time
 import uuid
 
 setup_logging()
 app = FastAPI(title="Expense Tracker API")
+
+
+@app.on_event("startup")
+def startup() -> None:
+    ensure_table_exists()
 
 
 @app.exception_handler(AppError)
@@ -17,6 +24,14 @@ async def app_error_handler(request: Request, exc: AppError) -> JSONResponse:
         status_code=exc.status_code,
         content={"error": {"code": exc.code, "message": exc.message}},
     )
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.middleware("http")
 async def logging_middleware(request: Request, call_next):

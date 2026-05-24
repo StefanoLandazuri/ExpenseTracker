@@ -1,0 +1,1 @@
+{"root":["./src/main.ts","./src/api/client.ts","./src/router/index.ts","./src/stores/auth.ts","./src/types/api.ts","./src/app.vue","./src/views/dashboard.vue","./src/views/expenselist.vue","./src/views/login.vue","./src/views/register.vue","./vite-env.d.ts"],"version":"6.0.3"}
