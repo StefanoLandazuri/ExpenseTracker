@@ -19,6 +19,12 @@ const auth = useAuthStore()
 const router = useRouter()
 
 async function handleLogout() {
+  const shouldLogout = window.confirm('Do you want to log out?')
+
+  if (!shouldLogout) {
+    return
+  }
+
   auth.logout()
   await router.push('/login')
 }

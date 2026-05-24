@@ -58,6 +58,13 @@ def test_create_expense_negative_amount_returns_422():
     assert res.status_code == 422
 
 
+def test_create_expense_with_comma_decimal_is_accepted():
+    payload = {**EXPENSE_PAYLOAD, "amount": "50,25"}
+    res = client.post("/expenses", json=payload, headers=auth_headers())
+    assert res.status_code == 201
+    assert res.json()["amount"] == "50.25"
+
+
 # --- List ---
 
 def test_list_expenses_empty_month_returns_empty_list():

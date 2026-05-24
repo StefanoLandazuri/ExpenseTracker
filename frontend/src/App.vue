@@ -1,20 +1,45 @@
 <template>
-  <div v-if="!auth.isHydrated" class="min-h-screen flex items-center justify-center bg-slate-950 text-slate-100">
-    <div class="text-center space-y-3">
-      <div class="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-slate-500 border-t-slate-100"></div>
-      <p class="text-sm text-slate-300">Loading your session...</p>
+  <div class="min-h-screen bg-gray-50">
+    <div v-if="auth.isAuthenticated" class="flex">
+      <Sidebar />
+      <main class="flex-1 pb-24 md:pb-0">
+        <router-view />
+      </main>
+
+      <!-- FAB -->
+      <button
+        @click="showForm = true"
+        class="fixed bottom-20 right-4 md:bottom-8 md:right-8 w-14 h-14 bg-blue-600 text-white rounded-full shadow-lg text-2xl flex items-center justify-center z-10"
+      >
+        +
+      </button>
+
+      <BottomNav />
+    </div>
+
+    <router-view v-else />
+
+    <!-- Modal -->
+    <div
+      v-if="showForm"
+      class="fixed inset-0 bg-black/40 z-20 flex items-end md:items-center justify-center"
+      @click.self="showForm = false"
+    >
+      <div class="bg-white w-full max-w-md rounded-t-2xl md:rounded-2xl p-6">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">Add Expense</h2>
+        <ExpenseForm @cancel="showForm = false" @saved="showForm = false" />
+      </div>
     </div>
   </div>
-  <router-view v-else />
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { ref } from 'vue'
 import { useAuthStore } from './stores/auth'
+import Sidebar from './components/Sidebar.vue'
+import BottomNav from './components/BottomNav.vue'
+import ExpenseForm from './components/ExpenseForm.vue'
 
 const auth = useAuthStore()
-
-onMounted(() => {
-  void auth.init()
-})
+const showForm = ref(false)
 </script>

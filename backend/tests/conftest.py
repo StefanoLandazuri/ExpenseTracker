@@ -4,7 +4,7 @@ import pytest
 from botocore.exceptions import ClientError
 
 ENDPOINT = "http://localhost:8001"
-TABLE_NAME = "expenses"
+TABLE_NAME = "expenses_test"
 REGION = "us-east-1"
 
 
@@ -47,7 +47,7 @@ def create_expenses_table(client):
 def dynamo_table():
     client = make_client()
 
-    # Borrar si existe de una corrida anterior
+    # La suite usa una tabla separada para no tocar datos reales.
     try:
         client.delete_table(TableName=TABLE_NAME)
         client.get_waiter("table_not_exists").wait(TableName=TABLE_NAME)

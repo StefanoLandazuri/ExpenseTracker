@@ -14,6 +14,13 @@ class ExpenseCreate(BaseModel):
     description: str | None = None
     date: str  # formato YYYY-MM
 
+    @field_validator("amount", mode="before")
+    @classmethod
+    def normalize_amount_separator(cls, value: object) -> object:
+        if isinstance(value, str):
+            return value.strip().replace(",", ".")
+        return value
+
     @field_validator("amount")
     @classmethod
     def amount_must_be_positive(cls, value: Decimal) -> Decimal:
