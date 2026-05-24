@@ -1,7 +1,8 @@
 from datetime import timedelta
-from fastapi import APIRouter, Cookie, Response
+from fastapi import APIRouter, Cookie, Depends, Response
 from jose import JWTError
 
+from app.auth.dependencies import get_current_user
 from app.auth.jwt import create_access_token, create_refresh_token, decode_token
 from app.auth.passwords import hash_password, verify_password
 from app.db import dynamo
@@ -92,3 +93,17 @@ def refresh(response: Response, refresh_token: str | None = Cookie(default=None)
     _set_refresh_cookie(response, new_refresh_token)
 
     return {"access_token": new_access_token}
+
+
+@router.get("/me")
+def me(user_id: str = Depends(get_current_user)) -> dict:
+    user_in_db = dynamo.get_user_by_id(user_id)
+    if not user_in_db:
+        raise InvalidCredentials()
+
+    user = User(
+        id=user_in_db["id"],
+        email=user_in_db["email"],
+        created_at=user_in_db["created_at"],
+    )
+    return user.model_dump()

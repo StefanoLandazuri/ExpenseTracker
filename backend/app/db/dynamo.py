@@ -1,7 +1,32 @@
 import boto3
+from botocore.exceptions import ClientError
 from boto3.dynamodb.conditions import Key
 
 from app.config import settings
+
+
+TABLE_SCHEMA = {
+    "TableName": settings.dynamodb_table,
+    "KeySchema": [
+        {"AttributeName": "PK", "KeyType": "HASH"},
+        {"AttributeName": "SK", "KeyType": "RANGE"},
+    ],
+    "AttributeDefinitions": [
+        {"AttributeName": "PK", "AttributeType": "S"},
+        {"AttributeName": "SK", "AttributeType": "S"},
+        {"AttributeName": "email", "AttributeType": "S"},
+    ],
+    "GlobalSecondaryIndexes": [
+        {
+            "IndexName": "email-index",
+            "KeySchema": [
+                {"AttributeName": "email", "KeyType": "HASH"},
+            ],
+            "Projection": {"ProjectionType": "ALL"},
+        }
+    ],
+    "BillingMode": "PAY_PER_REQUEST",
+}
 
 
 def get_client():
@@ -17,6 +42,26 @@ def get_client():
 
 def get_table():
     return  get_client().Table(settings.dynamodb_table) # type: ignore
+
+
+def ensure_table_exists() -> None:
+    if not settings.dynamodb_endpoint:
+        return
+
+    client = get_client().meta.client # type: ignore
+
+    try:
+        client.describe_table(TableName=settings.dynamodb_table)
+        return
+    except ClientError as error:
+        if error.response["Error"]["Code"] != "ResourceNotFoundException":
+            raise
+
+    try:
+        client.create_table(**TABLE_SCHEMA)
+    except ClientError as error:
+        if error.response["Error"]["Code"] != "ResourceInUseException":
+            raise
 
 
 def put_expense(user_id: str, expense: dict) -> None:
@@ -81,3 +126,12 @@ def get_user_by_email(email: str) -> dict | None:
     )
     items = response.get("Items", [])
     return items[0] if items else None
+
+
+def get_user_by_id(user_id: str) -> dict | None:
+    table = get_table()
+    response = table.get_item(Key={
+        "PK": f"USER#{user_id}",
+        "SK": "PROFILE",
+    })
+    return response.get("Item")
