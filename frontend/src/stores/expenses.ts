@@ -9,6 +9,7 @@ export const useExpensesStore = defineStore('expenses', () => {
   const currentMonth = ref(new Date().toISOString().slice(0, 7))
   const loading = ref(false)
   const error = ref<string | null>(null)
+  const dashboardRefreshToken = ref(0)
 
   async function fetchExpenses(month?: string) {
     loading.value = true
@@ -29,11 +30,20 @@ export const useExpensesStore = defineStore('expenses', () => {
   async function createExpense(data: ExpenseCreate) {
     const res = await api.post('/expenses', data)
     expenses.value.unshift(res.data as Expense)
+    await Promise.all([
+      fetchExpenses(currentMonth.value),
+      fetchSummary(currentMonth.value),
+    ])
+    dashboardRefreshToken.value += 1
   }
 
   async function deleteExpense(id: string, date: string) {
     await api.delete(`/expenses/${id}?date=${date}`)
-    expenses.value = expenses.value.filter(e => e.id !== id)
+    await Promise.all([
+      fetchExpenses(currentMonth.value),
+      fetchSummary(currentMonth.value),
+    ])
+    dashboardRefreshToken.value += 1
   }
 
   async function fetchSummary(month?: string) {
@@ -47,7 +57,7 @@ export const useExpensesStore = defineStore('expenses', () => {
   }
 
   return {
-    expenses, summary, currentMonth, loading, error,
+    expenses, summary, currentMonth, loading, error, dashboardRefreshToken,
     fetchExpenses, createExpense, deleteExpense, fetchSummary, setMonth,
   }
 })
