@@ -135,3 +135,20 @@ def test_summary_groups_by_category_correctly():
     assert float(data["by_category"]["food"]) == 40.0
     assert float(data["by_category"]["transport"]) == 60.0
     assert float(data["by_category"]["housing"]) == 0.0
+    
+def test_export_returns_csv_with_correct_headers():
+    client.post("/expenses", json=EXPENSE_PAYLOAD, headers=auth_headers("user-export"))
+    res = client.get("/expenses/export?month=2024-01", headers=auth_headers("user-export"))
+    assert res.status_code == 200
+    assert "text/csv" in res.headers["content-type"]
+    lines = res.text.strip().splitlines()
+    assert lines[0] == "date,category,amount,description"
+
+
+def test_export_only_exports_own_data():
+    client.post("/expenses", json=EXPENSE_PAYLOAD, headers=auth_headers("user-exp-a"))
+    client.post("/expenses", json=EXPENSE_PAYLOAD, headers=auth_headers("user-exp-b"))
+
+    res = client.get("/expenses/export?month=2024-01", headers=auth_headers("user-exp-a"))
+    lines = res.text.strip().splitlines()
+    assert len(lines) == 2  # header + 1 expense

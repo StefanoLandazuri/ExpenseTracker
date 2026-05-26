@@ -2,14 +2,22 @@
   <div class="px-4 py-6 max-w-2xl mx-auto">
     <!-- Header -->
     <div class="flex items-center justify-between mb-6">
-      <h1 class="text-xl font-bold text-gray-900">Expenses</h1>
-      <input
-        v-model="store.currentMonth"
-        type="month"
-        class="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-        @change="store.fetchExpenses(store.currentMonth)"
-      />
-    </div>
+  <h1 class="text-xl font-bold text-gray-900">Expenses</h1>
+  <div class="flex items-center gap-2">
+    <button
+      @click="handleExport"
+      class="border border-gray-200 text-gray-600 px-3 py-2 rounded-xl text-sm font-medium"
+    >
+      Export CSV
+    </button>
+    <input
+      v-model="store.currentMonth"
+      type="month"
+      class="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+      @change="store.fetchExpenses(store.currentMonth)"
+    />
+  </div>
+</div>
 
     <!-- Loading -->
     <div v-if="store.loading" class="space-y-3">
@@ -93,6 +101,7 @@ import { ref, onMounted } from 'vue'
 import { useExpensesStore } from '../stores/expenses'
 import { CATEGORY_META } from '../utils/categories'
 import type { Expense } from '../types/api'
+import api from '../api/client'
 
 const store = useExpensesStore()
 const expenseToDelete = ref<Expense | null>(null)
@@ -107,5 +116,24 @@ async function handleDelete() {
   if (!expenseToDelete.value) return
   await store.deleteExpense(expenseToDelete.value.id, expenseToDelete.value.date)
   expenseToDelete.value = null
+}
+
+async function handleExport() {
+  try {
+    const res = await api.get(`/expenses/export?month=${store.currentMonth}`, {
+      responseType: 'blob',
+    })
+    console.log('blob size:', (res.data as Blob).size)
+    const url = URL.createObjectURL(res.data as Blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `expenses-${store.currentMonth}.csv`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  } catch (err) {
+    console.error('Export failed:', err)
+  }
 }
 </script>
