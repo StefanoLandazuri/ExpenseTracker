@@ -2,7 +2,9 @@ from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query,Response
+import csv
+import io
 from ulid import ULID
 
 from app.auth.dependencies import get_current_user
@@ -111,3 +113,25 @@ def get_summary(
     expenses = [_to_expense(item) for item in items]
     summary = calculate_summary(expenses, month)
     return summary.model_dump()
+
+@router.get("/export")
+def export_expenses(
+    user_id: Annotated[str, Depends(get_current_user)],
+    month: str = Query(default=datetime.now(timezone.utc).strftime("%Y-%m")),
+) -> Response:
+    items = dynamo.query_expenses_by_month(user_id, month)
+    expenses = [_to_expense(item) for item in items]
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["date", "category", "amount", "description"])
+    for exp in sorted(expenses, key=lambda e: e.date):
+        writer.writerow([exp.date, exp.category, exp.amount, exp.description or ""])
+
+    return Response(
+        content=output.getvalue(),
+        media_type="text/csv",
+        headers={
+            "Content-Disposition": f'attachment; filename="expenses-{month}.csv"'
+        },
+    )
