@@ -30,13 +30,13 @@ TABLE_SCHEMA = {
 
 
 def get_client():
-    kwargs = {
+    kwargs: dict = {
         "region_name": settings.aws_region,
-        "aws_access_key_id": "local",
-        "aws_secret_access_key": "local",
     }
     if settings.dynamodb_endpoint:
         kwargs["endpoint_url"] = settings.dynamodb_endpoint
+        kwargs["aws_access_key_id"] = "local"
+        kwargs["aws_secret_access_key"] = "local"
     return boto3.resource("dynamodb", **kwargs)
 
 
