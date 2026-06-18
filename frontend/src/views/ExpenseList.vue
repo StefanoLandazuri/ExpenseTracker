@@ -29,7 +29,7 @@
 
     <!-- Empty state -->
     <div v-else-if="store.expenses.length === 0" class="text-center py-20">
-      <p class="text-4xl mb-3">💸</p>
+      <Wallet :size="40" class="mx-auto mb-3 text-gray-300" />
       <p class="text-gray-500 font-medium">No expenses yet</p>
       <p class="text-gray-400 text-sm">Tap + to add one</p>
     </div>
@@ -42,9 +42,9 @@
         class="bg-white rounded-2xl p-4 flex items-center gap-3 shadow-sm"
       >
         <span
-          :class="['text-2xl w-10 h-10 flex items-center justify-center rounded-xl', CATEGORY_META[expense.category].color]"
+          :class="['w-10 h-10 flex items-center justify-center rounded-xl shrink-0', CATEGORY_META[expense.category].color]"
         >
-          {{ CATEGORY_META[expense.category].emoji }}
+          <component :is="CATEGORY_META[expense.category].icon" :size="20" />
         </span>
 
         <div class="flex-1 min-w-0">
@@ -98,6 +98,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { Wallet } from '@lucide/vue'
 import { useExpensesStore } from '../stores/expenses'
 import { CATEGORY_META } from '../utils/categories'
 import type { Expense } from '../types/api'

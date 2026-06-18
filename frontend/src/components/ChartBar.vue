@@ -30,7 +30,7 @@ function buildChart() {
   chart = new Chart(canvas.value, {
     type: 'bar',
     data: {
-      labels: filtered.map(c => CATEGORY_META[c].emoji + ' ' + CATEGORY_META[c].label),
+      labels: filtered.map(c => CATEGORY_META[c].label),
       datasets: [{
         data: filtered.map(c => props.data[c] ?? 0),
         backgroundColor: filtered.map(c => CATEGORY_META[c].chartColor),

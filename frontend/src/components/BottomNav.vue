@@ -7,43 +7,31 @@
       class="flex-1 flex flex-col items-center justify-center py-3 text-xs font-medium"
       :class="route.path === item.path ? 'text-blue-600' : 'text-gray-400'"
     >
-      <span class="text-xl mb-1">{{ item.icon }}</span>
+      <component :is="item.icon" :size="22" class="mb-1" />
       {{ item.label }}
     </router-link>
 
     <button
       type="button"
-      @click="handleLogout"
-      class="flex-1 flex flex-col items-center justify-center py-3 text-xs font-medium text-red-500"
+      aria-label="Add expense"
+      @click="emit('add')"
+      class="absolute z-10 left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-blue-600 text-white shadow-lg flex items-center justify-center"
     >
-      <span class="text-xl mb-1">🚪</span>
-      Logout
+      <Plus :size="26" />
     </button>
   </nav>
 </template>
 
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
 import { useRoute } from 'vue-router'
-import { useAuthStore } from '../stores/auth'
+import { LayoutDashboard, Wallet, Plus } from '@lucide/vue'
 
 const route = useRoute()
-const router = useRouter()
-const auth = useAuthStore()
 
 const navItems = [
-  { path: '/dashboard', label: 'Dashboard', icon: '📊' },
-  { path: '/expenses', label: 'Expenses', icon: '💸' },
+  { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { path: '/expenses', label: 'Expenses', icon: Wallet },
 ]
 
-async function handleLogout() {
-  const shouldLogout = window.confirm('Do you want to log out?')
-
-  if (!shouldLogout) {
-    return
-  }
-
-  auth.logout()
-  await router.push('/login')
-}
+const emit = defineEmits<{ add: [] }>()
 </script>

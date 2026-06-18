@@ -1,20 +1,21 @@
 <template>
   <div class="min-h-screen bg-gray-50">
     <div v-if="auth.isAuthenticated" class="flex">
-      <Sidebar />
-      <main class="flex-1 pb-24 md:pb-0">
+      <Sidebar @add="showForm = true" />
+
+      <!-- Mobile header -->
+      <header class="fixed top-0 inset-x-0 z-10 md:hidden bg-white border-b border-gray-100 flex items-center justify-between px-4 py-3">
+        <h1 class="text-lg font-bold text-gray-900">Expense Tracker</h1>
+        <button type="button" aria-label="Log out" @click="handleLogout" class="text-red-500">
+          <LogOut :size="20" />
+        </button>
+      </header>
+
+      <main class="flex-1 pt-16 pb-24 md:pt-0 md:pb-0">
         <router-view />
       </main>
 
-      <!-- FAB -->
-      <button
-        @click="showForm = true"
-        class="fixed bottom-20 right-4 md:bottom-8 md:right-8 w-14 h-14 bg-blue-600 text-white rounded-full shadow-lg text-2xl flex items-center justify-center z-10"
-      >
-        +
-      </button>
-
-      <BottomNav />
+      <BottomNav @add="showForm = true" />
     </div>
 
     <router-view v-else />
@@ -35,11 +36,25 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { LogOut } from '@lucide/vue'
 import { useAuthStore } from './stores/auth'
 import Sidebar from './components/Sidebar.vue'
 import BottomNav from './components/BottomNav.vue'
 import ExpenseForm from './components/ExpenseForm.vue'
 
 const auth = useAuthStore()
+const router = useRouter()
 const showForm = ref(false)
+
+async function handleLogout() {
+  const shouldLogout = window.confirm('Do you want to log out?')
+
+  if (!shouldLogout) {
+    return
+  }
+
+  auth.logout()
+  await router.push('/login')
+}
 </script>

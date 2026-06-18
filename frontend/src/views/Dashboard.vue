@@ -20,7 +20,7 @@
 
     <!-- Empty state -->
     <div v-else-if="!store.summary || parseFloat(store.summary.total) === 0" class="text-center py-20">
-      <p class="text-4xl mb-3">📊</p>
+      <LayoutDashboard :size="40" class="mx-auto mb-3 text-gray-300" />
       <p class="text-gray-500 font-medium">No expenses this month</p>
       <p class="text-gray-400 text-sm">Tap + to add some</p>
     </div>
@@ -53,6 +53,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
+import { LayoutDashboard } from '@lucide/vue'
 import { useExpensesStore } from '../stores/expenses'
 import { useAuthStore } from '../stores/auth'
 import ChartBar from '../components/ChartBar.vue'

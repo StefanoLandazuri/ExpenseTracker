@@ -26,7 +26,7 @@
               : 'border-gray-200 text-gray-600'
           ]"
         >
-          <span class="text-lg mb-1">{{ meta.emoji }}</span>
+          <component :is="meta.icon" :size="20" class="mb-1" />
           {{ meta.label }}
         </button>
       </div>
