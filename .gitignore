@@ -1,6 +1,4 @@
 **/__pycache__/
 *.pyc
-backend/app/__pycache__/main.cpython-312.pyc
 frontend/.vite/deps/_metadata.json
 frontend/.vite/deps/package.json
-backend/app/__pycache__/main.cpython-312.pyc
